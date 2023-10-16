@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Names from './Components/Names'
+import nameService from './services/names'
+
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -9,82 +11,131 @@ const App = () => {
   const [findName, setFindName] = useState('') 
 
   const hook = () => {
-    console.log('effect')
     axios
       .get('http://localhost:3002/persons')
       .then(response => {
-        console.log('promise fulfilled')
         setPersons(response.data)
       })
   }
   
-  useEffect(hook, [])
-  console.log('render', persons.length, 'persons')
+  useEffect(() => {
+    nameService
+      .getAll()
+      .then(initialNames => {
+        setPersons(initialNames)
+      })
+  }, [])
+  
+  const deleteThisName = (name, id) => {
+    if (window.confirm(`Delete ${name}`)){
+    nameService
+    .deleteName(id)
+      .then(response => {
+       
+        nameService
+      .getAll()
+      .then(initialNames => {
+        setPersons(initialNames)
+      })
+    })
+  }
+  }
   
   const addName = (event) => {
-    event.preventDefault() // it prevents the refreshing of page (prevent default behaviuor of submit button)
+    event.preventDefault() // it prevents the refreshing of page (prevent default behaviour of submit button)
     const nameObject = {
       name: newName,
       number: newNum,
       id: persons.length + 1
     }
+                
     let flag = 0
     for (let i = 0; i < persons.length; i++) {
       const element = persons[i]
-      // console.log({i}, persons[i])
-      if(areTheseNamesEqual(nameObject, element)){
+      const cmpResult = areTheseNamesEqual(nameObject, element)
+      if(flag === 0 && cmpResult.result){
+        console.log(i)
         flag = 1
-        alert(nameObject.name+ ' is already added to phonebook')
-      }       
-    }
-    if(flag === 0) 
-      setPersons(persons.concat(nameObject))
-    setNewName('')
-    setPersons(persons.concat(nameObject))
-    setNewNum('')
-    // console.log('button clicked', event.target)
-    console.log(persons)
-  }
+        if (window.confirm(nameObject.name+ ' is already added to phonebook, replace the old number with a new one ?')){
+          nameService
+          .update(cmpResult.cmp, nameObject)
+          .then(returnedName => {
+            nameService
+            .getAll()
+            .then(initialNames => {
+              setPersons(initialNames)
+      })
+
+          })
+        }
+      }
+    } 
+
+    
+      if (flag === 0){
+        console.log("inside")
+        nameService
+        .create(nameObject)
+        .then(returnedName => {
+          setPersons(persons.concat(returnedName))
+          setNewName('')
+        })
+      }
+      setNewName('')  
+      setNewNum('')
+   }
+  
+
 
   const handleNameChange = (event) => { 
-    // console.log(event.target.value)
     setNewName(event.target.value)
   }
   const handleNumChange = (event) => { 
-    // console.log(event.target.value)
     setNewNum(event.target.value)
   }
 
   const handleFindName =(event) => {
-    // insert value in findName
     setFindName(event.target.value)
   }
 
 
-
-
-
   function areTheseNamesEqual(newEnteredName, nameAlreadyInList) {
     const al = Object.getOwnPropertyNames(newEnteredName);
-    // console.log("returning value of " , al )
+    
     const bl = Object.getOwnPropertyNames(nameAlreadyInList);
   
-    if (al.length !== bl.length) return false;
+    if (al.length !== bl.length){
+      console.log("key len comp")
+      return {
+      result: false,
+      cmp: -1};
+    }
   
     const hasAllKeys = al.every(value => !!bl.find(v => v === value));
-  
    
-    if (!hasAllKeys) return false;
+    if (!hasAllKeys) {
+      console.log("inside key comp")
+    return {
+      result: false,
+      cmp: -1};
+    }
 
-    for (const key of al){
+    // for (const key of al){
 
-     if (newEnteredName[key] !== nameAlreadyInList[key] && key !== "id") 
-     return false;
-    }    
-    return true;
+     if (newEnteredName['name'] !== nameAlreadyInList['name']){ 
+      // console.log("inside value comparison")
+     return {
+      result: false,
+      cmp: -1};
+     }
+    // }    
+    
+    return {
+      result: true,
+      cmp: nameAlreadyInList.id
+    };
   }
   
-    
   return (
     <div>
       <h2>Phonebook</h2>
@@ -98,7 +149,6 @@ const App = () => {
         
       </div>
         <br /> <br />
-
       <form onSubmit={addName}>
         <label>Name:</label>
         <input 
@@ -114,9 +164,12 @@ const App = () => {
       </form>
       <h2>Numbers</h2>
       <ul>
-        <Names filterName={findName} persons={persons}/>      
-         {/* findname is assigned to filtername & persons(mainlist) is assigned to persons. filterName & persons are sent to Names. */}
-      </ul>    
+        <Names 
+          filterName={findName} 
+          persons={persons} 
+          deleteName = {deleteThisName} 
+          />           
+         </ul>    
     </div>
   )
 }
