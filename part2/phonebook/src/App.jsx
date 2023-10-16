@@ -31,14 +31,13 @@ const App = () => {
     nameService
     .deleteName(id)
       .then(response => {
-       
-        nameService
-      .getAll()
-      .then(initialNames => {
-        setPersons(initialNames)
+       nameService
+        .getAll()
+        .then(initialNames => {
+          setPersons(initialNames)
+        })
       })
-    })
-  }
+    }
   }
   
   const addName = (event) => {
@@ -64,17 +63,13 @@ const App = () => {
             .getAll()
             .then(initialNames => {
               setPersons(initialNames)
-      })
-
+            })
           })
         }
       }
     } 
-
-    
-      if (flag === 0){
-        console.log("inside")
-        nameService
+    if (flag === 0){
+      nameService
         .create(nameObject)
         .then(returnedName => {
           setPersons(persons.concat(returnedName))
@@ -84,8 +79,6 @@ const App = () => {
       setNewName('')  
       setNewNum('')
    }
-  
-
 
   const handleNameChange = (event) => { 
     setNewName(event.target.value)
@@ -93,43 +86,29 @@ const App = () => {
   const handleNumChange = (event) => { 
     setNewNum(event.target.value)
   }
-
   const handleFindName =(event) => {
     setFindName(event.target.value)
   }
 
-
   function areTheseNamesEqual(newEnteredName, nameAlreadyInList) {
     const al = Object.getOwnPropertyNames(newEnteredName);
-    
     const bl = Object.getOwnPropertyNames(nameAlreadyInList);
-  
     if (al.length !== bl.length){
-      console.log("key len comp")
       return {
       result: false,
       cmp: -1};
     }
-  
     const hasAllKeys = al.every(value => !!bl.find(v => v === value));
-   
     if (!hasAllKeys) {
-      console.log("inside key comp")
-    return {
+      return {
       result: false,
       cmp: -1};
-    }
-
-    // for (const key of al){
-
-     if (newEnteredName['name'] !== nameAlreadyInList['name']){ 
-      // console.log("inside value comparison")
+    }    
+    if (newEnteredName['name'] !== nameAlreadyInList['name']){ 
      return {
       result: false,
       cmp: -1};
-     }
-    // }    
-    
+    }
     return {
       result: true,
       cmp: nameAlreadyInList.id
