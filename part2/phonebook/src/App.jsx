@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Names from './Components/Names'
+import Notification from './Components/Notification'
+import './index.css'
 import nameService from './services/names'
 
 
@@ -9,7 +11,9 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNum, setNewNum] = useState('')
   const [findName, setFindName] = useState('') 
-
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [errorTypeSelect, setErrorTypeSelect] = useState()
+  
   const hook = () => {
     axios
       .get('http://localhost:3002/persons')
@@ -27,6 +31,7 @@ const App = () => {
   }, [])
   
   const deleteThisName = (name, id) => {
+    setErrorTypeSelect("failure")
     if (window.confirm(`Delete ${name}`)){
     nameService
     .deleteName(id)
@@ -34,13 +39,27 @@ const App = () => {
        nameService
         .getAll()
         .then(initialNames => {
-          setPersons(initialNames)
+          setPersons(initialNames)})
         })
+      .catch(error => {
+        setErrorMessage( 
+          `${name} was already removed from server`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+        
+        nameService
+        .getAll()
+        .then(initialNames => {
+          setPersons(initialNames)})
       })
+      }
     }
-  }
+  
   
   const addName = (event) => {
+    setErrorTypeSelect("success")
     event.preventDefault() // it prevents the refreshing of page (prevent default behaviour of submit button)
     const nameObject = {
       name: newName,
@@ -73,6 +92,12 @@ const App = () => {
         .create(nameObject)
         .then(returnedName => {
           setPersons(persons.concat(returnedName))
+          setErrorMessage(
+            `${nameObject.name} was added`
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
           setNewName('')
         })
       }
@@ -118,7 +143,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-
+      <Notification message={errorMessage} errorType={errorTypeSelect} />
       <div>
        <label>filter shown with:</label>
        <input 
