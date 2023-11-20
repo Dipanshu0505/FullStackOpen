@@ -4,9 +4,7 @@ import countryService from '../services/axiosData'
 
 const CountryWeather = (props) => {
     if(props.cityName === null) return null
-
     const [weather, setWeather] = useState({})
-    
 
     useEffect (() => {
         countryService
@@ -25,7 +23,6 @@ const CountryWeather = (props) => {
             <p>wind {weather.wind.speed} m/s</p>
         </>
     )
-
 }
 
 export default CountryWeather

@@ -16,7 +16,7 @@ const App = () => {
   
   const hook = () => {
     axios
-      .get('http://localhost:3002/persons')
+      .get('/api/persons')
       .then(response => {
         setPersons(response.data)
       })
@@ -40,7 +40,13 @@ const App = () => {
         .getAll()
         .then(initialNames => {
           setPersons(initialNames)})
-        })
+        
+          setErrorMessage (
+          `${name} was deleted from server`)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+      })
       .catch(error => {
         setErrorMessage( 
           `${name} was already removed from server`
@@ -100,10 +106,18 @@ const App = () => {
           }, 5000)
           setNewName('')
         })
+        
+        .catch(error => {
+          setErrorMessage(error.response.data.error)
+          setTimeout(() => {
+            setErrorMessage(null)
+          },5000)
+        })
       }
       setNewName('')  
       setNewNum('')
    }
+    
 
   const handleNameChange = (event) => { 
     setNewName(event.target.value)

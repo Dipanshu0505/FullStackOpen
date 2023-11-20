@@ -14,7 +14,6 @@ const CountryDetails = (props) => {
     }, [props.cName])
     console.log(typeof(singleCountryDetail))
 
-    
 
     // console.log(cDetails)
     if(Object.entries(cDetails).length === 0) return null
@@ -33,7 +32,6 @@ const CountryDetails = (props) => {
                 })}
             </ul>
             <img src={cDetails.flags.svg} alt={cDetails.flags.alt} width="400"/>
-            
 
             <CountryWeather cityName={cDetails.capital[0]} cName={props.cName}/>
             

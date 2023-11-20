@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import nameService from './services/axiosData'
 import CountryDetails from './Components/countryDetails'
+import './index.css'
 
 const DisplayList = (props) => {
   // console.log(props.countryNames)
@@ -39,10 +40,9 @@ const DisplayList = (props) => {
 
 function App() {
   const [countries, setCountries] = useState([])
-  const [findName, setFindName] = useState('')
+  const [findName, setFindName] = useState('ame')
   const [displayCountry, setDisplayCountry] = useState(null)
-  
-  
+    
   useEffect(() => {
     nameService
       .getAll()
@@ -66,24 +66,17 @@ function App() {
     setDisplayCountry(dispName)
   }
 
-
   return (
-    
-      
-      <div>
-       <label>find countries:</label>
+      <div className='abc'>
+       <label>find countries: </label>
        <input 
           value={findName} 
           onChange={handleFindName} 
         />    
-        
         <DisplayList countryNames={countryNames} filterName={findName} changeDisplayName={changeDisplayName}/>
       
         <CountryDetails cName={displayCountry} />
-
       </div>
-      
-    
   )
 }
 
