@@ -1,0 +1,9 @@
+POST http://localhost:3004/api/blogs/
+Content-Type: application/json 
+
+{
+    "title": "Dipanshu",
+    "author": "unknown",
+    "url": "not assigned",
+    "likes": 1
+}  
